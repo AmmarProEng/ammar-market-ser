@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { CreateProductsDto } from './dto/create-products.dto';
 import { UpdateProductsDto } from './dto/update-products.dto';
 import { ProductsService } from './products.service';
+import { UserAuthGuard } from 'src/user-auth/user-auth.guard';
 
 // type Products = {
 //     id: number,
@@ -28,25 +29,26 @@ export class ProductsController {
   }
 
   @Get(':id')
-  getProduct(@Param('id') id:string) {
+  getProduct(@Param('id', ParseIntPipe) id:number) {
     
-    return this.productService.getProductA(id)
+    return this.productService.getProduct(id)
   }
 
   @Post()
-  makeProduct(@Body() createProductsDto: CreateProductsDto){
+  makeProduct(@Body(new ValidationPipe()) createProductsDto: CreateProductsDto){
     console.log('data = ', createProductsDto)
-   this.productService.postProductA(createProductsDto)
+   this.productService.postProduct(createProductsDto)
   }
 
   @Delete(':id')
-  deletProduct(@Param('id') id:string) {
+  @UseGuards(UserAuthGuard)
+  deletProduct(@Param('id', ParseIntPipe) id:number) {
     
-    return this.productService.deleteProductA(id)
+    return this.productService.deleteProduct(id)
   }
 
   @Put(':id')
-  upDateProduct(@Param('id') id:string,@Body() upDateProduct: UpdateProductsDto) {
-    return this.productService.upDateProductA(id, upDateProduct)
+  upDateProduct(@Param('id', ParseIntPipe) id:number,@Body() upDateProduct: UpdateProductsDto) {
+    return this.productService.upDateProduct(id, upDateProduct)
   }
 }
